@@ -9,6 +9,11 @@ resource "aws_lambda_function" "lambda_function" {
   memory_size = 128
   role        = aws_iam_role.iam_for_lambda.arn
 
+  vpc_config {
+    security_group_ids = [aws_security_group.rds_sg.id]
+    subnet_ids = [aws_subnet.db_subnet_a.id, aws_subnet.db_subnet_b.id, aws_subnet.db_subnet_c.id]
+  }
+
   environment {
     variables = {
       ENDPOINT_HOST_NAME = aws_rds_cluster.aurora_cluster.endpoint
