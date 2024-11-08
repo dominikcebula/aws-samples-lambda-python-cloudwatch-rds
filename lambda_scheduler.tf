@@ -6,7 +6,7 @@ resource "aws_cloudwatch_event_rule" "lambda_schedule" {
 resource "aws_cloudwatch_event_target" "lambda_schedule_event_target" {
   rule      = aws_cloudwatch_event_rule.lambda_schedule.name
   target_id = "event-target-${local.lambda_function_name}"
-  arn       = aws_lambda_function.java_lambda_function.arn
+  arn       = aws_lambda_function.lambda_function.arn
 }
 
 resource "aws_lambda_permission" "lambda-update-reporting" {
