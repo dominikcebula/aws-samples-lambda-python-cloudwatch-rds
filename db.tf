@@ -1,7 +1,6 @@
 resource "aws_db_instance" "default" {
   allocated_storage           = 1
-  storage_type                = "gp2"
-  db_name                     = "database-1"
+  db_name                     = "database01"
   engine                      = "aurora-postgresql"
   engine_version              = "15.4"
   instance_class              = "db.t3.medium"
