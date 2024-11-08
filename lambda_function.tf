@@ -11,23 +11,30 @@ resource "aws_lambda_function" "java_lambda_function" {
 
   environment {
     variables = {
-      ENDPOINT_HOST_NAME = aws_rds_cluster.aurora_postgresql.endpoint
-      PORT               = aws_rds_cluster.aurora_postgresql.port
-      DB_NAME            = aws_rds_cluster.aurora_postgresql.database_name
-      DB_USER_NAME       = aws_rds_cluster.aurora_postgresql.master_username
+      ENDPOINT_HOST_NAME = aws_rds_cluster.aurora_cluster.endpoint
+      PORT               = aws_rds_cluster.aurora_cluster.port
+      DB_NAME            = aws_rds_cluster.aurora_cluster.database_name
+      DB_USER_NAME       = aws_rds_cluster.aurora_cluster.master_username
       AWS_REGION         = var.region
     }
   }
 
   depends_on = [
+    null_resource.install_dependencies,
     aws_iam_role_policy_attachment.lambda_logs,
     aws_cloudwatch_log_group.log_group
   ]
 }
 
+resource "null_resource" "install_dependencies" {
+  provisioner "local-exec" {
+    command = "rm -Rf package && cp -R code package && pip install -r code/requirements.txt -t package"
+  }
+}
+
 data "archive_file" "lambda_archive" {
   type        = "zip"
-  source_dir  = "${path.module}/code"
+  source_dir  = "${path.module}/package"
   output_path = local.lambda_archive_filename
 }
 
