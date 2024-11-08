@@ -1,6 +1,6 @@
 resource "aws_cloudwatch_event_rule" "lambda_schedule" {
   name                = "lambda-schedule"
-  schedule_expression = "rate(1 minute)"
+  schedule_expression = "rate(1 hour)"
 }
 
 resource "aws_cloudwatch_event_target" "lambda_schedule_event_target" {
