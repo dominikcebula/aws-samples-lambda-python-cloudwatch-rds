@@ -1,15 +1,16 @@
 resource "aws_rds_cluster" "aurora_cluster" {
-  cluster_identifier          = "aurora-cluster-01"
-  engine                      = "aurora-postgresql"
-  engine_mode                 = "provisioned"
-  engine_version              = "15.4"
-  database_name               = "database01"
-  master_username             = "postgres"
-  manage_master_user_password = true
-  backup_retention_period     = 1
-  skip_final_snapshot         = true
-  db_subnet_group_name        = aws_db_subnet_group.db_subnet_group.name
+  cluster_identifier                  = "aurora-cluster-01"
+  engine                              = "aurora-postgresql"
+  engine_mode                         = "provisioned"
+  engine_version                      = "15.4"
+  database_name                       = "database01"
+  master_username                     = "postgres"
+  manage_master_user_password         = true
+  backup_retention_period             = 1
+  skip_final_snapshot                 = true
+  db_subnet_group_name                = aws_db_subnet_group.db_subnet_group.name
   vpc_security_group_ids = [aws_security_group.rds_sg.id]
+  iam_database_authentication_enabled = true
 }
 
 resource "aws_rds_cluster_instance" "aurora_cluster_instances" {
