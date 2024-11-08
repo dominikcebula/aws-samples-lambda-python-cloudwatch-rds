@@ -15,7 +15,6 @@ resource "aws_lambda_function" "java_lambda_function" {
       PORT               = aws_rds_cluster.aurora_cluster.port
       DB_NAME            = aws_rds_cluster.aurora_cluster.database_name
       DB_USER_NAME       = aws_rds_cluster.aurora_cluster.master_username
-      AWS_REGION         = var.region
     }
   }
 
