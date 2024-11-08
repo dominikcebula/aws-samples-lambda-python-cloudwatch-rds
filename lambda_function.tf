@@ -9,6 +9,16 @@ resource "aws_lambda_function" "java_lambda_function" {
   memory_size = 128
   role        = aws_iam_role.iam_for_lambda.arn
 
+  environment {
+    variables = {
+      ENDPOINT_HOST_NAME = aws_rds_cluster.aurora_postgresql.endpoint
+      PORT               = aws_rds_cluster.aurora_postgresql.port
+      DB_NAME            = aws_rds_cluster.aurora_postgresql.database_name
+      DB_USER_NAME       = aws_rds_cluster.aurora_postgresql.master_username
+      AWS_REGION         = var.region
+    }
+  }
+
   depends_on = [
     aws_iam_role_policy_attachment.lambda_logs,
     aws_cloudwatch_log_group.log_group
