@@ -1,4 +1,4 @@
-resource "aws_lambda_function" "java_lambda_function" {
+resource "aws_lambda_function" "lambda_function" {
   runtime          = local.lambda_runtime
   function_name    = local.lambda_function_name
   filename         = data.archive_file.lambda_archive.output_path
