@@ -5,5 +5,5 @@ resource "aws_rds_cluster" "aurora_postgresql" {
   database_name               = "database01"
   master_username             = "postgres"
   manage_master_user_password = true
-  backup_retention_period     = 5
+  backup_retention_period     = 1
 }
