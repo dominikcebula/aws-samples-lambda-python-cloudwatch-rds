@@ -4,7 +4,7 @@ resource "aws_db_instance" "default" {
   db_name                     = "database-1"
   engine                      = "aurora-postgresql"
   engine_version              = "15.4"
-  instance_class              = "db.t3.micro"
+  instance_class              = "db.t3.medium"
   multi_az                    = false
   username                    = "postgres"
   manage_master_user_password = true
