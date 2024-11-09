@@ -41,7 +41,7 @@ resource "postgresql_role" "db_monitoring_user" {
   roles = ["rds_iam"]
 }
 
-resource "postgresql_grant" "readonly_tables" {
+resource "postgresql_grant" "db_monitoring_user_grant" {
   database    = aws_rds_cluster.aurora_cluster.database_name
   role        = postgresql_role.db_monitoring_user.name
   schema      = "public"
