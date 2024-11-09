@@ -19,7 +19,7 @@ resource "aws_lambda_function" "lambda_function" {
       ENDPOINT_HOST_NAME = aws_rds_cluster.aurora_cluster.endpoint
       PORT               = aws_rds_cluster.aurora_cluster.port
       DB_NAME            = aws_rds_cluster.aurora_cluster.database_name
-      DB_USER_NAME       = aws_rds_cluster.aurora_cluster.master_username
+      DB_USER_NAME       = postgresql_role.db_monitoring_user.name
     }
   }
 

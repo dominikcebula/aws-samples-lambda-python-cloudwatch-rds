@@ -24,6 +24,27 @@ resource "aws_rds_cluster_instance" "aurora_cluster_instances" {
   db_subnet_group_name = aws_rds_cluster.aurora_cluster.db_subnet_group_name
 }
 
+provider "postgresql" {
+  host            = aws_rds_cluster.aurora_cluster.endpoint
+  port            = aws_rds_cluster.aurora_cluster.port
+  database        = aws_rds_cluster.aurora_cluster.database_name
+  username        = aws_rds_cluster.aurora_cluster.master_username
+  password        = jsondecode(data.aws_secretsmanager_secret_version.postgres_password.secret_string)["password"]
+  sslmode         = "require"
+  connect_timeout = 15
+  superuser       = false
+}
+
+resource "postgresql_role" "db_monitoring_user" {
+  name  = "db_monitoring_user"
+  login = true
+  roles = ["rds_iam"]
+}
+
+data "aws_secretsmanager_secret_version" "postgres_password" {
+  secret_id = aws_rds_cluster.aurora_cluster.master_user_secret[0].secret_arn
+}
+
 resource "aws_db_subnet_group" "db_subnet_group" {
   name = "aurora-cluster-db-subnet-group"
   subnet_ids = [aws_subnet.db_subnet_a.id, aws_subnet.db_subnet_b.id, aws_subnet.db_subnet_c.id]
