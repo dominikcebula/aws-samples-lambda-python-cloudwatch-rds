@@ -102,7 +102,7 @@ data "aws_iam_policy_document" "lambda_iam_db" {
     ]
 
     resources = [
-      "arn:aws:rds-db:${var.region}:*:dbuser:*"
+      "arn:aws:rds-db:${var.region}:*:dbuser:*/${postgresql_role.db_monitoring_user.name}"
     ]
   }
 }
