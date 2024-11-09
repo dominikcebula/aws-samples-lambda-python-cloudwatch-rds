@@ -24,7 +24,7 @@ resource "aws_lambda_function" "lambda_function" {
   }
 
   depends_on = [
-    null_resource.install_dependencies,
+    data.archive_file.lambda_archive,
     aws_iam_role_policy_attachment.lambda_logs,
     aws_cloudwatch_log_group.log_group
   ]
@@ -40,6 +40,8 @@ data "archive_file" "lambda_archive" {
   type        = "zip"
   source_dir  = "${path.module}/package"
   output_path = local.lambda_archive_filename
+
+  depends_on = [null_resource.install_dependencies]
 }
 
 resource "aws_iam_role" "iam_for_lambda" {
