@@ -32,7 +32,7 @@ resource "aws_lambda_function" "lambda_function" {
 
 resource "null_resource" "install_dependencies" {
   provisioner "local-exec" {
-    command = "rm -Rf package && cp -R code package && pip install -r code/requirements.txt -t package"
+    command = "python package.py"
   }
 }
 
