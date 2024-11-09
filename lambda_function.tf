@@ -63,7 +63,7 @@ data "aws_iam_policy_document" "assume_role" {
 resource "aws_iam_policy" "lambda_ec2" {
   name        = "lambda_ec2"
   path        = "/"
-  description = "IAM policy for logging from a lambda"
+  description = "IAM policy for network interfaces from a lambda"
   policy      = data.aws_iam_policy_document.lambda_ec2.json
 }
 
@@ -84,6 +84,32 @@ data "aws_iam_policy_document" "lambda_ec2" {
 resource "aws_iam_role_policy_attachment" "lambda_ec2" {
   role       = aws_iam_role.iam_for_lambda.name
   policy_arn = aws_iam_policy.lambda_ec2.arn
+}
+
+resource "aws_iam_policy" "lambda_iam_db" {
+  name        = "lambda_iam_db"
+  path        = "/"
+  description = "IAM policy for db access using iam"
+  policy      = data.aws_iam_policy_document.lambda_iam_db.json
+}
+
+data "aws_iam_policy_document" "lambda_iam_db" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "rds-db:connect",
+    ]
+
+    resources = [
+      "arn:aws:rds-db:${var.region}:*:dbuser:*"
+    ]
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_iam_db" {
+  role       = aws_iam_role.iam_for_lambda.name
+  policy_arn = aws_iam_policy.lambda_iam_db.arn
 }
 
 resource "aws_security_group" "lambda_sg" {
