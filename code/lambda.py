@@ -1,5 +1,6 @@
 import logging
 import os
+from pathlib import Path
 
 import boto3
 import psycopg2
@@ -14,6 +15,23 @@ port = int(os.environ['PORT'])
 db_name = os.environ['DB_NAME']
 db_user_name = os.environ['DB_USER_NAME']
 aws_region = os.environ['AWS_REGION']
+
+
+def lambda_handler(event, context):
+    logger.info("Running lambda handler...")
+
+    logger.info("Fetching auth token...")
+    token = get_auth_token()
+    logger.info("Auth token fetched.")
+
+    logger.info("Opening connection to DB...")
+    with get_connection(token) as connection:
+        logger.info("Connection opened.")
+
+        logger.info("Running sql queries")
+        produce_metrics_for_sql_queries(connection)
+
+    logger.info("Lambda handler finished.")
 
 
 def get_auth_token():
@@ -36,20 +54,22 @@ def get_connection(token):
     return conn
 
 
-def lambda_handler(event, context):
-    logger.info("Running lambda handler")
-    logger.info(event)
+def produce_metrics_for_sql_queries(connection):
+    produce_metrics_for_sql_query("orders", "sql/orders.sql", connection)
+    produce_metrics_for_sql_query("payments", "sql/payments.sql", connection)
+    produce_metrics_for_sql_query("products", "sql/products.sql", connection)
 
-    token = get_auth_token()
 
-    conn = get_connection(token)
+def produce_metrics_for_sql_query(metric_name, sql_file, connection):
+    logger.info(f"Producing metric {metric_name}...")
+    sql_content = Path(sql_file).read_text()
 
-    cur = conn.cursor()
-    cur.execute("""SELECT now()""")
-    query_results = cur.fetchall()
-    print(query_results)
+    with connection.cursor() as cursor:
+        cursor.execute(sql_content)
+        results = cursor.fetchall()
+        print(results)
 
-    return None
+    logger.info(f"Metric {metric_name} produced.")
 
 
 if __name__ == "__main__":

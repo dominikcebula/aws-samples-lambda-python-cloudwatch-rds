@@ -1,0 +1,1 @@
+SELECT round(avg(price::numeric)) FROM products;

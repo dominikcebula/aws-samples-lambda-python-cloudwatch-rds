@@ -1,0 +1,1 @@
+SELECT round(avg(amount::numeric)) FROM orders;

@@ -41,6 +41,14 @@ resource "postgresql_role" "db_monitoring_user" {
   roles = ["rds_iam"]
 }
 
+resource "postgresql_grant" "readonly_tables" {
+  database    = aws_rds_cluster.aurora_cluster.database_name
+  role        = postgresql_role.db_monitoring_user.name
+  schema      = "public"
+  object_type = "table"
+  privileges = ["SELECT"]
+}
+
 data "aws_secretsmanager_secret_version" "postgres_password" {
   secret_id = aws_rds_cluster.aurora_cluster.master_user_secret[0].secret_arn
 }
