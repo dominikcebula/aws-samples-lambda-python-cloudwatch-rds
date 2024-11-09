@@ -10,7 +10,7 @@ resource "aws_lambda_function" "lambda_function" {
   role        = aws_iam_role.iam_for_lambda.arn
 
   vpc_config {
-    security_group_ids = [aws_security_group.rds_sg.id]
+    security_group_ids = [aws_security_group.lambda_sg.id]
     subnet_ids = [aws_subnet.db_subnet_a.id, aws_subnet.db_subnet_b.id, aws_subnet.db_subnet_c.id]
   }
 
@@ -84,4 +84,17 @@ data "aws_iam_policy_document" "lambda_ec2" {
 resource "aws_iam_role_policy_attachment" "lambda_ec2" {
   role       = aws_iam_role.iam_for_lambda.name
   policy_arn = aws_iam_policy.lambda_ec2.arn
+}
+
+resource "aws_security_group" "lambda_sg" {
+  name_prefix = "lambda-"
+
+  vpc_id = aws_vpc.db_vpc.id
+
+  egress {
+    from_port = 5432
+    to_port   = 5432
+    protocol  = "tcp"
+    cidr_blocks = [aws_vpc.db_vpc.cidr_block]
+  }
 }
