@@ -78,6 +78,12 @@ data "aws_iam_policy_document" "lambda_ec2" {
     ]
 
     resources = ["*"]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "lambda:SourceFunctionArn"
+      values = [aws_lambda_function.lambda_function.arn]
+    }
   }
 }
 
