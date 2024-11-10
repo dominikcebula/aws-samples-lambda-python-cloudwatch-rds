@@ -18,7 +18,6 @@ def main():
 def cleanup():
     remove(ARCHIVE_NAME) if exists(ARCHIVE_NAME) else None
     rmtree("package", ignore_errors=True)
-    rmtree("venv", ignore_errors=True)
 
 
 def build_package():
