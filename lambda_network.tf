@@ -3,6 +3,24 @@ resource "aws_vpc_endpoint" "monitoring" {
   service_name      = "com.amazonaws.${var.region}.monitoring"
   vpc_endpoint_type = "Interface"
   subnet_ids = [aws_subnet.lambda_subnet_a.id, aws_subnet.lambda_subnet_b.id, aws_subnet.lambda_subnet_c.id]
+  security_group_ids = [aws_security_group.monitoring_vpc_endpoint_sg.id]
+}
+
+resource "aws_security_group" "monitoring_vpc_endpoint_sg" {
+  name_prefix = "vpc-endpoint-monitoring-"
+
+  vpc_id = aws_vpc.vpc.id
+
+  ingress {
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
+    security_groups = [aws_security_group.lambda_sg.id]
+  }
+
+  tags = {
+    Name = "VPC Endpoint Monitoring"
+  }
 }
 
 resource "aws_subnet" "lambda_subnet_a" {
