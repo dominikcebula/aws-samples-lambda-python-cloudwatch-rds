@@ -7,7 +7,7 @@ resource "aws_lambda_function" "lambda_function" {
   handler     = local.lambda_function_handler
   timeout     = 60
   memory_size = 128
-  role        = aws_iam_role.iam_for_lambda.arn
+  role        = aws_iam_role.lambda_iam_role.arn
 
   vpc_config {
     security_group_ids = [aws_security_group.lambda_sg.id]
@@ -44,12 +44,12 @@ data "archive_file" "lambda_archive" {
   depends_on = [null_resource.install_dependencies]
 }
 
-resource "aws_iam_role" "iam_for_lambda" {
+resource "aws_iam_role" "lambda_iam_role" {
   name               = "iam_for_lambda"
-  assume_role_policy = data.aws_iam_policy_document.assume_role.json
+  assume_role_policy = data.aws_iam_policy_document.lambda_iam_policy_document_assume_role.json
 }
 
-data "aws_iam_policy_document" "assume_role" {
+data "aws_iam_policy_document" "lambda_iam_policy_document_assume_role" {
   statement {
     effect = "Allow"
 
@@ -62,14 +62,14 @@ data "aws_iam_policy_document" "assume_role" {
   }
 }
 
-resource "aws_iam_policy" "lambda_ec2" {
-  name        = "lambda_ec2"
+resource "aws_iam_policy" "lambda_iam_policy_ec2" {
+  name        = "lambda_iam_policy_ec2"
   path        = "/"
   description = "IAM policy for network interfaces from a lambda"
-  policy      = data.aws_iam_policy_document.lambda_ec2.json
+  policy      = data.aws_iam_policy_document.lambda_iam_policy_document_ec2.json
 }
 
-data "aws_iam_policy_document" "lambda_ec2" {
+data "aws_iam_policy_document" "lambda_iam_policy_document_ec2" {
   statement {
     effect = "Allow"
 
@@ -83,19 +83,19 @@ data "aws_iam_policy_document" "lambda_ec2" {
   }
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_ec2" {
-  role       = aws_iam_role.iam_for_lambda.name
-  policy_arn = aws_iam_policy.lambda_ec2.arn
+resource "aws_iam_role_policy_attachment" "lambda_iam_policy_attachment_ec2" {
+  role       = aws_iam_role.lambda_iam_role.name
+  policy_arn = aws_iam_policy.lambda_iam_policy_ec2.arn
 }
 
-resource "aws_iam_policy" "lambda_iam_db" {
-  name        = "lambda_iam_db"
+resource "aws_iam_policy" "lambda_iam_policy_db" {
+  name        = "lambda_iam_policy_db"
   path        = "/"
   description = "IAM policy for db access using iam"
-  policy      = data.aws_iam_policy_document.lambda_iam_db.json
+  policy      = data.aws_iam_policy_document.lambda_iam_policy_document_db.json
 }
 
-data "aws_iam_policy_document" "lambda_iam_db" {
+data "aws_iam_policy_document" "lambda_iam_policy_document_db" {
   statement {
     effect = "Allow"
 
@@ -109,9 +109,9 @@ data "aws_iam_policy_document" "lambda_iam_db" {
   }
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_iam_db" {
-  role       = aws_iam_role.iam_for_lambda.name
-  policy_arn = aws_iam_policy.lambda_iam_db.arn
+resource "aws_iam_role_policy_attachment" "lambda_iam_role_policy_attachment_db" {
+  role       = aws_iam_role.lambda_iam_role.name
+  policy_arn = aws_iam_policy.lambda_iam_policy_db.arn
 }
 
 resource "aws_security_group" "lambda_sg" {
