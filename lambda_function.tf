@@ -1,8 +1,8 @@
 resource "aws_lambda_function" "lambda_function" {
-  runtime          = local.lambda_runtime
-  function_name    = local.lambda_function_name
-  filename         = data.archive_file.lambda_archive.output_path
-  source_code_hash = data.archive_file.lambda_archive.output_sha256
+  runtime       = local.lambda_runtime
+  function_name = local.lambda_function_name
+  filename      = local.lambda_archive_filename
+  source_code_hash = filebase64sha256(local.lambda_archive_filename)
 
   handler     = local.lambda_function_handler
   timeout     = 60
@@ -11,7 +11,7 @@ resource "aws_lambda_function" "lambda_function" {
 
   vpc_config {
     security_group_ids = [aws_security_group.lambda_sg.id]
-    subnet_ids = [aws_subnet.db_subnet_a.id, aws_subnet.db_subnet_b.id, aws_subnet.db_subnet_c.id]
+    subnet_ids = [aws_subnet.lambda_subnet_private.id]
   }
 
   environment {
@@ -24,24 +24,16 @@ resource "aws_lambda_function" "lambda_function" {
   }
 
   depends_on = [
-    data.archive_file.lambda_archive,
+    null_resource.package_lambda,
     aws_iam_role_policy_attachment.lambda_logs,
     aws_cloudwatch_log_group.log_group
   ]
 }
 
-resource "null_resource" "install_dependencies" {
+resource "null_resource" "package_lambda" {
   provisioner "local-exec" {
     command = "python package.py"
   }
-}
-
-data "archive_file" "lambda_archive" {
-  type        = "zip"
-  source_dir  = "${path.module}/package"
-  output_path = local.lambda_archive_filename
-
-  depends_on = [null_resource.install_dependencies]
 }
 
 resource "aws_iam_role" "lambda_iam_role" {
@@ -138,17 +130,4 @@ data "aws_iam_policy_document" "lambda_iam_policy_document_cloudwatch_metrics" {
 resource "aws_iam_role_policy_attachment" "lambda_iam_role_policy_attachment_cloudwatch_metrics" {
   role       = aws_iam_role.lambda_iam_role.name
   policy_arn = aws_iam_policy.lambda_iam_policy_cloudwatch_metrics.arn
-}
-
-resource "aws_security_group" "lambda_sg" {
-  name_prefix = "lambda-"
-
-  vpc_id = aws_vpc.db_vpc.id
-
-  egress {
-    from_port = 5432
-    to_port   = 5432
-    protocol  = "tcp"
-    cidr_blocks = [aws_vpc.db_vpc.cidr_block]
-  }
 }

@@ -23,7 +23,7 @@ def cleanup():
 def build_package():
     copytree(CODE_FOLDER, "package")
     run(["pip", "install", "-r", abspath("package/requirements.txt"), "-t", abspath("package")])
-    make_archive('aws-samples-lambda-python-cloudwatch-rds.zip', 'zip', 'package')
+    make_archive('aws-samples-lambda-python-cloudwatch-rds', 'zip', 'package')
 
 
 if __name__ == "__main__":
