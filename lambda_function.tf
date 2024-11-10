@@ -11,15 +11,16 @@ resource "aws_lambda_function" "lambda_function" {
 
   vpc_config {
     security_group_ids = [aws_security_group.lambda_sg.id]
-    subnet_ids = [aws_subnet.lambda_subnet_private.id]
+    subnet_ids = [aws_subnet.lambda_subnet_a.id, aws_subnet.lambda_subnet_b.id, aws_subnet.lambda_subnet_c.id]
   }
 
   environment {
     variables = {
-      ENDPOINT_HOST_NAME = aws_rds_cluster.aurora_cluster.endpoint
-      PORT               = aws_rds_cluster.aurora_cluster.port
-      DB_NAME            = aws_rds_cluster.aurora_cluster.database_name
-      DB_USER_NAME       = postgresql_role.db_monitoring_user.name
+      DB_ENDPOINT_HOST_NAME         = aws_rds_cluster.aurora_cluster.endpoint
+      CLOUDWATCH_ENDPOINT_HOST_NAME = aws_vpc_endpoint.monitoring.dns_entry.0.dns_name
+      PORT                          = aws_rds_cluster.aurora_cluster.port
+      DB_NAME                       = aws_rds_cluster.aurora_cluster.database_name
+      DB_USER_NAME                  = postgresql_role.db_monitoring_user.name
     }
   }
 

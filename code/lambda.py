@@ -11,7 +11,8 @@ logger.setLevel("INFO")
 
 logger.info("Loading lambda function")
 
-endpoint_host_name = os.environ['ENDPOINT_HOST_NAME']
+db_endpoint_host_name = os.environ['DB_ENDPOINT_HOST_NAME']
+cloudwatch_endpoint_host_name = os.environ['CLOUDWATCH_ENDPOINT_HOST_NAME']
 port = int(os.environ['PORT'])
 db_name = os.environ['DB_NAME']
 db_user_name = os.environ['DB_USER_NAME']
@@ -37,7 +38,7 @@ def get_db_auth_token():
     logger.info("Getting DB Auth token...")
     client = boto3.client('rds')
     token = client.generate_db_auth_token(
-        DBHostname=endpoint_host_name,
+        DBHostname=db_endpoint_host_name,
         Port=port,
         DBUsername=db_user_name,
         Region=aws_region)
@@ -48,7 +49,10 @@ def get_db_auth_token():
 
 def get_cloudwatch_client():
     logger.info("Creating CloudWatch client...")
-    cloudwatch_client = boto3.client('cloudwatch')
+    cloudwatch_client = boto3.client(
+        service_name='cloudwatch',
+        endpoint_url=f"https://{cloudwatch_endpoint_host_name}"
+    )
     logger.info("CloudWatch created.")
 
     return cloudwatch_client
@@ -56,7 +60,7 @@ def get_cloudwatch_client():
 
 def get_db_connection(token):
     logger.info("Opening connection to DB...")
-    conn = psycopg2.connect(host=endpoint_host_name,
+    conn = psycopg2.connect(host=db_endpoint_host_name,
                             port=port,
                             database=db_name,
                             user=db_user_name,

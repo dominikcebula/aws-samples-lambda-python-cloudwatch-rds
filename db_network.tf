@@ -1,7 +1,7 @@
 resource "aws_subnet" "db_subnet_a" {
   vpc_id            = aws_vpc.vpc.id
   cidr_block        = "10.0.1.0/24"
-  availability_zone = "eu-central-1a"
+  availability_zone = "${var.region}a"
 
   tags = {
     Name = "DB Subnet A"
@@ -16,7 +16,7 @@ resource "aws_route_table_association" "db_subnet_a_route_assoc" {
 resource "aws_subnet" "db_subnet_b" {
   vpc_id            = aws_vpc.vpc.id
   cidr_block        = "10.0.2.0/24"
-  availability_zone = "eu-central-1b"
+  availability_zone = "${var.region}b"
 
   tags = {
     Name = "DB Subnet B"
@@ -31,7 +31,7 @@ resource "aws_route_table_association" "db_subnet_b_route_assoc" {
 resource "aws_subnet" "db_subnet_c" {
   vpc_id            = aws_vpc.vpc.id
   cidr_block        = "10.0.3.0/24"
-  availability_zone = "eu-central-1c"
+  availability_zone = "${var.region}c"
 
   tags = {
     Name = "DB Subnet C"

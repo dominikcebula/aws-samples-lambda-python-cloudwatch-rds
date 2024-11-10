@@ -1,50 +1,37 @@
-resource "aws_route_table_association" "lambda_igw_route_assoc" {
-  subnet_id      = aws_subnet.lambda_subnet_public.id
-  route_table_id = aws_route_table.igw_route.id
+resource "aws_vpc_endpoint" "monitoring" {
+  vpc_id            = aws_vpc.vpc.id
+  service_name      = "com.amazonaws.${var.region}.monitoring"
+  vpc_endpoint_type = "Interface"
+  subnet_ids = [aws_subnet.lambda_subnet_a.id, aws_subnet.lambda_subnet_b.id, aws_subnet.lambda_subnet_c.id]
 }
 
-resource "aws_eip" "lambda_nat_gateway_eip" {
-  domain = "vpc"
-}
-
-resource "aws_nat_gateway" "lambda_nat_gateway" {
-  allocation_id = aws_eip.lambda_nat_gateway_eip.id
-  subnet_id     = aws_subnet.lambda_subnet_public.id
-  tags = {
-    "Name" = "Lambda NAT GW"
-  }
-}
-
-resource "aws_route_table" "lambda_nat_gateway_route" {
-  vpc_id = aws_vpc.vpc.id
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.lambda_nat_gateway.id
-  }
-}
-
-resource "aws_route_table_association" "lambda_nat_gateway_route_assoc" {
-  subnet_id      = aws_subnet.lambda_subnet_private.id
-  route_table_id = aws_route_table.lambda_nat_gateway_route.id
-}
-
-resource "aws_subnet" "lambda_subnet_public" {
+resource "aws_subnet" "lambda_subnet_a" {
   vpc_id            = aws_vpc.vpc.id
   cidr_block        = "10.0.4.0/24"
-  availability_zone = "eu-central-1a"
+  availability_zone = "${var.region}a"
 
   tags = {
-    Name = "Lambda Subnet Public"
+    Name = "Lambda Subnet A"
   }
 }
 
-resource "aws_subnet" "lambda_subnet_private" {
+resource "aws_subnet" "lambda_subnet_b" {
   vpc_id            = aws_vpc.vpc.id
   cidr_block        = "10.0.5.0/24"
-  availability_zone = "eu-central-1a"
+  availability_zone = "${var.region}b"
 
   tags = {
-    Name = "Lambda Subnet Private"
+    Name = "Lambda Subnet B"
+  }
+}
+
+resource "aws_subnet" "lambda_subnet_c" {
+  vpc_id            = aws_vpc.vpc.id
+  cidr_block        = "10.0.6.0/24"
+  availability_zone = "${var.region}c"
+
+  tags = {
+    Name = "Lambda Subnet C"
   }
 }
 
