@@ -114,6 +114,32 @@ resource "aws_iam_role_policy_attachment" "lambda_iam_role_policy_attachment_db"
   policy_arn = aws_iam_policy.lambda_iam_policy_db.arn
 }
 
+resource "aws_iam_policy" "lambda_iam_policy_cloudwatch_metrics" {
+  name        = "lambda_iam_policy_cloudwatch"
+  path        = "/"
+  description = "IAM policy for custom metrics in cloudwatch"
+  policy      = data.aws_iam_policy_document.lambda_iam_policy_document_cloudwatch_metrics.json
+}
+
+data "aws_iam_policy_document" "lambda_iam_policy_document_cloudwatch_metrics" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "cloudwatch:PutMetricData",
+    ]
+
+    resources = [
+      "*"
+    ]
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_iam_role_policy_attachment_cloudwatch_metrics" {
+  role       = aws_iam_role.lambda_iam_role.name
+  policy_arn = aws_iam_policy.lambda_iam_policy_cloudwatch_metrics.arn
+}
+
 resource "aws_security_group" "lambda_sg" {
   name_prefix = "lambda-"
 
