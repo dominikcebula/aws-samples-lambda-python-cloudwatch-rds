@@ -34,26 +34,36 @@ def lambda_handler(event, context):
 
 
 def get_db_auth_token():
+    logger.info("Getting DB Auth token...")
     client = boto3.client('rds')
     token = client.generate_db_auth_token(
         DBHostname=endpoint_host_name,
         Port=port,
         DBUsername=db_user_name,
         Region=aws_region)
+    logger.info("DB Auth retrieved.")
+
     return token
 
 
 def get_cloudwatch_client():
-    return boto3.client('cloudwatch')
+    logger.info("Creating CloudWatch client...")
+    cloudwatch_client = boto3.client('cloudwatch')
+    logger.info("CloudWatch created.")
+
+    return cloudwatch_client
 
 
 def get_db_connection(token):
+    logger.info("Opening connection to DB...")
     conn = psycopg2.connect(host=endpoint_host_name,
                             port=port,
                             database=db_name,
                             user=db_user_name,
                             password=token,
                             sslrootcert="SSLCERTIFICATE")
+    logger.info("DB connection opened.")
+
     return conn
 
 
@@ -67,15 +77,15 @@ def produce_metrics_for_sql_query(metric_name, sql_file, connection, cloudwatch_
     sql_content = Path(sql_file).read_text()
 
     with connection.cursor() as cursor:
-        logger.info(f"Executing query for metrics {metric_name}")
+        logger.info(f"Executing query for metric {metric_name}")
         cursor.execute(sql_content)
         results = cursor.fetchall()
         logger.info(f"Query results for {sql_file}: {results}")
 
-        logger.info(f"Sending metrics for metric {metric_name}")
+        logger.info(f"Sending data for metric {metric_name}")
         put_metrics(cloudwatch_client, metric_name, results)
 
-    logger.info(f"Metric {metric_name} produced.")
+    logger.info(f"Metric for {metric_name} produced.")
 
 
 def put_metrics(cloudwatch_client, metric_name, results):
